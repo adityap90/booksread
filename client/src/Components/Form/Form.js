@@ -1,28 +1,44 @@
-import React, {useState} from 'react';
+import React, {useEffect,useState} from 'react';
 import FileBase from 'react-file-base64'
 import useStyles from './Styles';
 import { Button, Paper, TextField, Typography } from '@material-ui/core';
-import { useDispatch } from 'react-redux';
-import { createPost } from '../../actions/posts';
+import { useDispatch, useSelector } from 'react-redux';
+import { createPost, updatePost} from '../../actions/posts';
 
-function Form() {
+
+function Form({currentId, setCurrentId}) {
   const classes = useStyles();
   const [postData, setPostData] = useState({ creator: '', title:'', message: '', tags:'', selectedFiles: ''})
+  const post = useSelector((state) => (currentId ? state.posts.find((message) => message._id === currentId) : null));
   const dispatch = useDispatch()
 
-  const handleSubmit = (e) => {
-   e.preventDefault()
-   dispatch(createPost(postData))
-  }
-  const clear =() => {
+  useEffect(() => {
+    if (post) setPostData(post);
+  }, [post]);
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (currentId) {
+      dispatch(updatePost(currentId, postData))
+
+    }
+    else {
+      dispatch(createPost(postData))
+
+    }
+    clear()
+  }
+  
+  const clear =() => {
+    setCurrentId(null);
+    setPostData({ creator: '', title: '', message: '', tags: '', selectedFile: '' });
   }
 
   return (
     <Paper className= {classes.paper}>
       <form autoComplete='off' noValidate className={`${classes.root} ${classes.form}`} onSubmit={handleSubmit}>
       <Typography variant='h6'>
-      creating a memory
+      {currentId ? `Editing "${post.title}"` : 'Creating a Memory'}
       </Typography>
       <TextField name='creator' variant='outlined' label = 'Creator' fullWidth value={postData.creator} onChange={(e) => setPostData({...postData,creator: e.target.value})}
       ></TextField>
@@ -39,8 +55,8 @@ function Form() {
         onDone = {(base64) => setPostData({...postData, selectedFiles:base64})}
         />
       </div>
-      <Button className={classes.buttonSubmit} variant='container' color = 'primary' size='large' type='submit' fullWidth>submit</Button>
-      <Button  variant='contained' color = 'secondary' size='small' onClick={clear} fullWidth>submit</Button>
+      <Button className={classes.buttonSubmit} variant='container' color = 'primary' size='large' type='submit' fullWidth>Submit</Button>
+      <Button  variant='contained' color = 'secondary' size='small' onClick={clear} fullWidth>Clear</Button>
       </form>
 
     </Paper>

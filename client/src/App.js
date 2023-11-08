@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, {useState, useEffect } from 'react'
 import {Typography, AppBar, Container, Grow, Grid} from '@material-ui/core'
 import memories from './memories.png'
 
@@ -10,10 +10,13 @@ import { useDispatch } from 'react-redux';
 
 function App() {
   const dispatch = useDispatch();
+  const [currentId, setCurrentId] = useState(null)
   useEffect(() => {
     dispatch(getPosts())
-  },[dispatch])
+  },[currentId, dispatch])
+  
   const classes = useStyles();
+  
   return (
     <Container maxWidth = "lg">
       <AppBar className = {classes.appBar} position='static' color = "inherit">
@@ -26,10 +29,10 @@ function App() {
         <Container>
           <Grid container justify = "space-between" alignItems='stretch' spacing={3}>
             <Grid xs = {12} sm = {7}>
-              <Posts/>
+              <Posts setCurrentId = {setCurrentId}/>
             </Grid>
             <Grid xs = {12} sm = {4}>
-              <Form/>
+              <Form currentId = {currentId} setCurrentId = {setCurrentId}/>
               </Grid>
           </Grid>
         </Container>
